@@ -1,0 +1,44 @@
+.verdict-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.verdict-badge--positive {
+  color: var(--ok);
+  background: linear-gradient(135deg, rgba(115, 211, 154, 0.16), rgba(115, 211, 154, 0.05));
+  border-color: rgba(115, 211, 154, 0.28);
+}
+
+.verdict-badge--neutral {
+  color: var(--warning);
+  background: linear-gradient(135deg, rgba(243, 201, 105, 0.18), rgba(243, 201, 105, 0.05));
+  border-color: rgba(243, 201, 105, 0.30);
+}
+
+.verdict-badge--negative {
+  color: var(--danger);
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.16), rgba(255, 107, 107, 0.05));
+  border-color: rgba(255, 107, 107, 0.28);
+}
+
+html[data-theme="light"] .verdict-badge--positive {
+  background: rgba(52, 138, 93, 0.10);
+  border-color: rgba(52, 138, 93, 0.24);
+}
+
+html[data-theme="light"] .verdict-badge--neutral {
+  background: rgba(183, 131, 22, 0.10);
+  border-color: rgba(183, 131, 22, 0.24);
+}
+
+html[data-theme="light"] .verdict-badge--negative {
+  background: rgba(217, 76, 76, 0.10);
+  border-color: rgba(217, 76, 76, 0.24);
+}

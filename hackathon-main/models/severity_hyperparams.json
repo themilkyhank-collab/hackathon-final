@@ -1,0 +1,23 @@
+{
+  "C": 10.0,
+  "gamma": 0.03,
+  "class_weight": "balanced",
+  "selection_metric": "grouped_cv_accuracy",
+  "accuracy_mean": 0.9462626262626262,
+  "accuracy_min": 0.9090909090909091,
+  "accuracy_std": 0.027212053721992292,
+  "representation": "d1",
+  "data_protocol": "train.csv estimator fitting; val.csv semantic reference only; test.csv unused",
+  "search_grid": {
+    "C": [0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 10.0],
+    "gamma": [0.003, 0.005, 0.0075, 0.01, 0.015, 0.0175, 0.02, 0.025, 0.03, 0.04, 0.05],
+    "class_weight": ["balanced", null]
+  },
+  "cv": {
+    "method": "GroupKFold",
+    "folds": 5,
+    "group": "engine_id",
+    "pseudo_severity_rows": 224,
+    "engines": 107
+  }
+}

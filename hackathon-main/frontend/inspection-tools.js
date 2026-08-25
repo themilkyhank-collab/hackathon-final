@@ -1,0 +1,30 @@
+(() => {
+  const DIAGNOSES = [['ok','OK','positive'],['unknown','UNKNOWN','neutral'],['zakoksowany','ZAKOKSOWANY','negative'],['lejacy','LEJĄCY','negative'],['pompa','POMPA','negative'],['iglica','IGLICA','negative']];
+  const DIAG_COLORS = {ok:'#35c86b',unknown:'#e9a62b',zakoksowany:'#ef6262',lejacy:'#ef6262',pompa:'#ef6262',iglica:'#ef6262'};
+  const SEV_COLORS = {'male':'#4da3ff','srednie':'#e9a62b','duze':'#ef6262','nie_dotyczy':'#8b98a8'};
+  const ANOM_COLORS = {'< 0.30':'#35c86b','0.30–0.45':'#78c77a','0.45–0.65':'#e9a62b','≥ 0.65':'#ef6262'};
+  function isPolish(){return (document.documentElement.lang||'en').toLowerCase().startsWith('pl')}
+  function diagnosisPrefix(){return isPolish()?'diagnoza':'diagnosis'}
+  function updateChipLabels(){document.querySelectorAll('.diagnosis-filter[data-diagnosis]').forEach(b=>{const value=b.dataset.diagnosis;if(value)b.textContent=`${diagnosisPrefix()}=${DIAGNOSES.find(d=>d[0]===value)?.[1]||value}`;else b.textContent=isPolish()?'Wszystkie':'All'})}
+  function loadStyles(){if(document.getElementById('inspectionControlsCss'))return;const link=document.createElement('link');link.id='inspectionControlsCss';link.rel='stylesheet';link.href='./inspection-tools.css';document.head.appendChild(link)}
+  function selectedDiagnosis(){return document.querySelector('.diagnosis-filter.active')?.dataset.diagnosis||''}
+  function setActive(button){document.querySelectorAll('.diagnosis-filter').forEach(b=>b.classList.toggle('active',b===button))}
+  function sync(){const active=selectedDiagnosis();document.querySelectorAll('.diagnosis-filter').forEach(b=>b.classList.toggle('active',b.dataset.diagnosis===active));updateChipLabels()}
+  function hideLegacyControls(){['resultFilter','confidenceFilter','exportButton'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none'})}
+  function addChips(){
+    if(document.getElementById('diagnosisFilters')){updateChipLabels();return true}
+    const tools=document.querySelector('.table-tools');if(!tools)return false;
+    const wrap=document.createElement('div');wrap.id='diagnosisFilters';wrap.className='diagnosis-filters';
+    const all=document.createElement('button');all.type='button';all.className='diagnosis-filter active';all.dataset.diagnosis='';wrap.appendChild(all);
+    DIAGNOSES.forEach(([value])=>{const b=document.createElement('button');b.type='button';b.className='diagnosis-filter';b.dataset.diagnosis=value;b.dataset.tone=value==='ok'?'positive':value==='unknown'?'neutral':'negative';b.addEventListener('click',()=>{setActive(b);window.renderTable?.()});wrap.appendChild(b)});
+    all.addEventListener('click',()=>{setActive(all);window.renderTable?.()});tools.parentNode.insertBefore(wrap,tools);hideLegacyControls();updateChipLabels();return true;
+  }
+  function filterRenderedRows(){const d=selectedDiagnosis();document.querySelectorAll('#resultsBody tr[data-row]').forEach(tr=>{const label=(tr.children[3]?.textContent||'').trim().toLowerCase();if(d&&label!==d)tr.remove()})}
+  function patchTable(){if(typeof window.renderTable!=='function'||window.__inspectionToolsPatched)return;const original=window.renderTable;window.renderTable=function(...args){const out=original.apply(this,args);filterRenderedRows();sync();return out};window.__inspectionToolsPatched=true}
+  function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+  function donut(containerId,data,colors){const el=document.getElementById(containerId);if(!el)return;const entries=Object.entries(data||{}).filter(([,v])=>Number(v)>0);const total=entries.reduce((s,[,v])=>s+Number(v),0);if(!total){el.innerHTML='<div class="pie-empty">—</div>';return}let cursor=0;const stops=[];entries.forEach(([key,val])=>{const end=cursor+Number(val)/total*360;stops.push(`${colors[key]||'#7b8794'} ${cursor}deg ${end}deg`);cursor=end});el.className='pie-chart';el.innerHTML=`<div class="pie-visual"><div class="pie-ring" style="background:conic-gradient(${stops.join(',')})"><div class="pie-hole"><strong>${total}</strong><span>${isPolish()?'wyników':'results'}</span></div></div></div><div class="pie-legend">${entries.map(([key,val])=>{const pct=(Number(val)/total*100).toFixed(0);return `<div class="pie-legend-row"><span class="pie-dot" style="background:${colors[key]||'#7b8794'}"></span><span class="pie-name">${escapeHtml(key)}</span><b>${val}</b><small>${pct}%</small></div>`}).join('')}</div>`}
+  function patchCharts(){if(typeof window.renderBars!=='function'||window.__pieChartsPatched)return;const original=window.renderBars;window.renderBars=function(id,c){if(id==='labelChart')donut(id,c,DIAG_COLORS);else if(id==='severityChart')donut(id,c,SEV_COLORS);else if(id==='anomalyChart')donut(id,c,ANOM_COLORS);else original.apply(this,arguments)};window.__pieChartsPatched=true}
+  function addLogo(){const brand=document.querySelector('.brand');if(!brand||brand.querySelector('.aesteel-logo-link'))return;const old=brand.querySelector('.brand-mark');if(old)old.remove();const text=brand.querySelector('div');const link=document.createElement('a');link.className='aesteel-logo-link';link.href='https://aesteel.eu/en/information-about-gdpr/';link.target='_blank';link.rel='noopener noreferrer';link.setAttribute('aria-label','Aesteel — website');const img=document.createElement('img');img.src='./aesteel-logo.svg';img.alt='Aesteel';link.appendChild(img);brand.insertBefore(link,text||null);if(text){const strong=text.querySelector('strong');if(strong)strong.remove();const small=text.querySelector('small');if(small)small.textContent='ENGINE LAB'}}
+  function init(){loadStyles();addLogo();hideLegacyControls();addChips();patchTable();patchCharts();sync();if(!document.getElementById('diagnosisFilters')){const mo=new MutationObserver(()=>{hideLegacyControls();addChips();patchTable();patchCharts();updateChipLabels()});mo.observe(document.body,{childList:true,subtree:true});setTimeout(()=>mo.disconnect(),15000)}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
