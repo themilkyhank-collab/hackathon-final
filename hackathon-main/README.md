@@ -157,13 +157,6 @@ python -m pip install -r requirements-dev.txt
 pytest -q
 ```
 
-## Co jeszcze trzeba przygotować do finalnego oddania
-
-1. Wygenerować `predictions.csv` **z `data/test.csv` przez `scripts/test_model.py --output predictions.csv`** i umieścić go w repo przed oddaniem.
-2. Dodać prezentację PDF/slajdy do repozytorium — obecnie repo nie zawiera pliku prezentacji.
-3. Przed oddaniem uruchomić `pytest -q` oraz test predykcji na pełnym `test.csv`.
-4. Nie używać `test.csv` do wyboru hiperparametrów ani ręcznego poprawiania predykcji.
-
 ## Performance / CPU
 
 RBF SVC pracuje na 20 cechach `d1`, frontend nie wymaga ciężkiego frameworka, a inference działa na CPU. Backend działa lokalnie i nie wymaga GPU.
